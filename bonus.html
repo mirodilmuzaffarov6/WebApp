@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonus Olish</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary-color: #10b981;
+            --danger-color: #ef4444;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-light: #f9fafb;
+            --bg-white: #ffffff;
+            --border-color: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-primary);
+        }
+        
+        .container {
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 0;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            padding: 32px 24px;
+            text-align: center;
+            color: white;
+        }
+        
+        .header-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 28px;
+        }
+        
+        .header h1 {
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        .content {
+            padding: 32px 24px;
+        }
+        
+        .bonus-info {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        
+        .bonus-amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+        }
+        
+        .bonus-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .captcha-section {
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-title i {
+            color: var(--primary-color);
+            font-size: 16px;
+        }
+        
+        .captcha-container {
+            background: var(--bg-light);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        
+        .captcha-container:focus-within {
+            border-color: var(--primary-color);
+        }
+        
+        .captcha-display {
+            background: white;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .captcha-text {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--primary-color);
+            letter-spacing: 8px;
+            user-select: none;
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .captcha-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+        }
+        
+        .captcha-lines::before,
+        .captcha-lines::after {
+            content: '';
+            position: absolute;
+            background: var(--primary-color);
+        }
+        
+        .captcha-lines::before {
+            width: 100%;
+            height: 2px;
+            top: 30%;
+            transform: rotate(-15deg);
+        }
+        
+        .captcha-lines::after {
+            width: 100%;
+            height: 2px;
+            top: 70%;
+            transform: rotate(15deg);
+        }
+        
+        .captcha-input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        
+        .captcha-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .captcha-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .refresh-btn {
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--border-color);
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background: var(--bg-light);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+        
+        .refresh-btn i {
+            font-size: 14px;
+        }
+        
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+            font-size: 14px;
+            font-weight: 500;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.error {
+            background: #fef2f2;
+            color: var(--danger-color);
+            border: 1px solid #fecaca;
+        }
+        
+        .message.success {
+            background: #f0fdf4;
+            color: var(--secondary-color);
+            border: 1px solid #bbf7d0;
+        }
+        
+        .message.info {
+            background: #eff6ff;
+            color: var(--primary-color);
+            border: 1px solid #bfdbfe;
+        }
+        
+        .check-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: var(--shadow);
+        }
+        
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .check-btn:active {
+            transform: translateY(0);
+        }
+        
+        .check-btn:disabled {
+            background: var(--border-color);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .check-btn i {
+            font-size: 18px;
+        }
+        
+        .security-note {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 16px;
+            font-size: 12px;
+            color: #92400e;
+            display: flex;
+            align-items: start;
+            gap: 10px;
+        }
+        
+        .security-note i {
+            color: #f59e0b;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 360px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.8) translateY(20px);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .modal-overlay.show .modal {
+            transform: scale(1) translateY(0);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #059669 100%);
+            padding: 32px 24px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            animation: scaleIn 0.5s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+        
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header h2 {
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .modal-header p {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 15px;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .modal-body {
+            padding: 32px 24px;
+            text-align: center;
+        }
+        
+        .modal-body .success-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+        
+        .modal-body .bonus-info-modal {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid var(--secondary-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .modal-body .bonus-amount-modal {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+        }
+        
+        .modal-body .bonus-label-modal {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .modal-footer {
+            padding: 0 24px 24px;
+        }
+        
+        .modal-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+        
+        .modal-btn:active {
+            transform: translateY(0);
+        }
+        
+        .modal-btn i {
+            font-size: 18px;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-10px) translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(250px) translateX(var(--move-x, 0px)) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--secondary-color);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                border-radius: 0;
+                max-width: 100%;
+            }
+            
+            .header {
+                padding: 24px 20px;
+            }
+            
+            .content {
+                padding: 24px 20px;
+            }
+            
+            .captcha-text {
+                font-size: 28px;
+                letter-spacing: 6px;
+            }
+            
+            .modal {
+                max-width: 100%;
+                width: 95%;
+                border-radius: 16px 16px 0 0;
+                margin-top: auto;
+            }
+            
+            .modal-overlay {
+                align-items: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-icon">
+                <i class="fas fa-gift"></i>
+            </div>
+            <h1>Bonus Olish</h1>
+            <p>Xavfsizlik tekshiruvini bajaring</p>
+        </div>
+        
+        <div class="content">
+            <div class="bonus-info">
+                <div class="bonus-amount">1 000 so'm</div>
+                <div class="bonus-label">Bonus Miqdori</div>
+            </div>
+            
+            <div class="captcha-section">
+                <div class="section-title">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Xavfsizlik Kodi</span>
+                </div>
+                
+                <div class="captcha-container">
+                    <div class="captcha-display">
+                        <div class="captcha-lines"></div>
+                        <div class="captcha-text" id="captchaText">ABCD</div>
+                    </div>
+                    
+                    <div class="captcha-input-group">
+                        <input type="text" 
+                               class="captcha-input" 
+                               id="captchaInput" 
+                               placeholder="Kodni kiriting" 
+                               maxlength="4" 
+                               autocomplete="off"
+                               inputmode="text">
+                    </div>
+                    
+                    <button class="refresh-btn" onclick="generateCaptcha()">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Yangilash</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="message" id="message"></div>
+            
+            <button class="check-btn" onclick="checkCaptcha()" id="checkBtn">
+                <i class="fas fa-check-circle"></i>
+                <span>Tekshirish</span>
+            </button>
+            
+            <div class="security-note">
+                <i class="fas fa-info-circle"></i>
+                <span>Bu tekshiruv robotlardan himoya qilish uchun zarur. Kodni to'g'ri kiriting.</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Muvaffaqiyatli!</h2>
+                <p>Bonus muvaffaqiyatli olindi</p>
+            </div>
+            <div class="modal-body">
+                <div class="success-text">Tabriklaymiz!</div>
+                <div class="bonus-info-modal">
+                    <div class="bonus-amount-modal">1 000 so'm</div>
+                    <div class="bonus-label-modal">Bonus Miqdori</div>
+                </div>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-top: 16px;">
+                    Bonus mablag'i hisobingizga qo'shildi
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="closeModal()">
+                    <i class="fas fa-check"></i>
+                    <span>Yopish</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        
+        // Telegram theme moslashtirish
+        if (tg.colorScheme === 'dark') {
+            document.documentElement.style.setProperty('--bg-white', '#1f2937');
+            document.documentElement.style.setProperty('--bg-light', '#374151');
+            document.documentElement.style.setProperty('--text-primary', '#f9fafb');
+            document.documentElement.style.setProperty('--text-secondary', '#d1d5db');
+            document.documentElement.style.setProperty('--border-color', '#4b5563');
+        }
+        
+        let captchaCode = '';
+        let isChecking = false; // Tekshirish jarayonida yoki yo'qligini tekshirish
+        
+        function resetButton() {
+            const checkBtn = document.getElementById('checkBtn');
+            checkBtn.disabled = false;
+            checkBtn.innerHTML = '<i class="fas fa-check-circle"></i><span>Tekshirish</span>';
+            isChecking = false;
+        }
+        
+        function generateCaptcha() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            captchaCode = '';
+            for (let i = 0; i < 4; i++) {
+                captchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('captchaText').textContent = captchaCode;
+            document.getElementById('captchaInput').value = '';
+            document.getElementById('message').style.display = 'none';
+            
+            // Agar tekshirish jarayonida bo'lmasa, button ni qayta yoqish
+            if (!isChecking) {
+                resetButton();
+            }
+            
+            // Animatsiya
+            const captchaText = document.getElementById('captchaText');
+            captchaText.style.animation = 'none';
+            setTimeout(() => {
+                captchaText.style.animation = 'fadeIn 0.3s ease';
+            }, 10);
+        }
+        
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = 'message ' + type;
+            messageEl.style.display = 'block';
+        }
+        
+        function checkCaptcha() {
+            // Agar tekshirish jarayonida bo'lsa, ikkinchi marta bosilishni oldini olish
+            if (isChecking) {
+                console.log('Tekshirish jarayonida, kutish kerak...');
+                return;
+            }
+            
+            const userInput = document.getElementById('captchaInput').value.toUpperCase().trim();
+            const checkBtn = document.getElementById('checkBtn');
+            
+            // Validatsiya - button ni disabled qilmaymiz, faqat xabar ko'rsatamiz
+            if (!userInput) {
+                showMessage('Iltimos, kodni kiriting!', 'error');
+                document.getElementById('captchaInput').focus();
+                return;
+            }
+            
+            if (userInput.length !== 4) {
+                showMessage('Kod 4 ta belgidan iborat bo\'lishi kerak!', 'error');
+                return;
+            }
+            
+            if (userInput !== captchaCode) {
+                showMessage('Noto\'g\'ri kod! Qayta urinib ko\'ring.', 'error');
+                generateCaptcha();
+                document.getElementById('captchaInput').value = '';
+                document.getElementById('captchaInput').focus();
+                return;
+            }
+            
+            // Captcha to'g'ri - botga xabar yuborish
+            isChecking = true;
+            checkBtn.disabled = true;
+            checkBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Tekshirilmoqda...</span>';
+            showMessage('Tekshirilmoqda...', 'info');
+            
+            // Telegram WebApp orqali botga ma'lumot yuborish
+            const data = JSON.stringify({
+                action: 'get_bonus',
+                captcha: userInput,
+                timestamp: Date.now()
+            });
+            
+            // Agar javob kelmasa, 5 soniyadan keyin button ni qayta yoqish
+            let errorTimeout = setTimeout(() => {
+                console.log('Timeout: Button ni qayta yoqish');
+                resetButton();
+                showMessage('Javob kutilyapti. Agar muammo bo\'lsa, qayta urinib ko\'ring.', 'info');
+            }, 5000);
+            
+            try {
+                tg.sendData(data);
+                console.log('Data yuborildi');
+                
+                // Ma'lumot yuborildi, timeout ni bekor qilish
+                clearTimeout(errorTimeout);
+                
+                // Chiroyli modal ko'rsatish
+                setTimeout(() => {
+                    showSuccessModal();
+                }, 300);
+            } catch (error) {
+                console.error('Error sending data:', error);
+                clearTimeout(errorTimeout);
+                // Xatolik yuz berganda button ni qayta yoqish
+                resetButton();
+                showMessage('Xatolik yuz berdi. Qayta urinib ko\'ring.', 'error');
+            }
+        }
+        
+        // Enter bosilganda tekshirish
+        document.getElementById('captchaInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                checkCaptcha();
+            }
+        });
+        
+        // Faqat harflar va raqamlar
+        document.getElementById('captchaInput').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+            if (this.value.length === 4) {
+                // Avtomatik tekshirish (ixtiyoriy)
+                // checkCaptcha();
+            }
+        });
+        
+        // Fokus animatsiyasi
+        document.getElementById('captchaInput').addEventListener('focus', function() {
+            this.parentElement.parentElement.style.borderColor = 'var(--primary-color)';
+        });
+        
+        document.getElementById('captchaInput').addEventListener('blur', function() {
+            if (!this.value) {
+                this.parentElement.parentElement.style.borderColor = 'var(--border-color)';
+            }
+        });
+        
+        // Modal funksiyalari
+        function showSuccessModal() {
+            const modal = document.getElementById('successModal');
+            modal.classList.add('show');
+            
+            // Confetti effekt (ixtiyoriy)
+            createConfetti();
+            
+            // 5 soniyadan keyin avtomatik yopish
+            setTimeout(() => {
+                closeModal();
+            }, 5000);
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('successModal');
+            modal.classList.remove('show');
+            
+            // Modal yopilgandan keyin WebApp ni yopish
+            setTimeout(() => {
+                tg.close();
+            }, 300);
+        }
+        
+        // Confetti effekt yaratish
+        function createConfetti() {
+            const colors = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#ec4899', '#06b6d4'];
+            const modalHeader = document.querySelector('.modal-header');
+            
+            // Avvalgi confetti larni tozalash
+            const existingConfetti = modalHeader.querySelectorAll('.confetti');
+            existingConfetti.forEach(el => el.remove());
+            
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                const leftPos = Math.random() * 100;
+                confetti.style.left = leftPos + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = (Math.random() * 6 + 6) + 'px';
+                confetti.style.height = (Math.random() * 6 + 6) + 'px';
+                confetti.style.top = '-10px';
+                
+                // Har xil yo'nalishlar uchun CSS variable
+                const moveX = (Math.random() - 0.5) * 80;
+                confetti.style.setProperty('--move-x', moveX + 'px');
+                
+                // Animatsiya vaqti
+                const duration = Math.random() * 0.8 + 2;
+                confetti.style.animation = `confetti-fall ${duration}s ease-out forwards`;
+                confetti.style.animationDelay = Math.random() * 0.3 + 's';
+                
+                modalHeader.appendChild(confetti);
+                
+                // Confetti ni keyinroq olib tashlash
+                setTimeout(() => {
+                    if (confetti.parentNode) {
+                        confetti.remove();
+                    }
+                }, (duration + 0.3) * 1000);
+            }
+        }
+        
+        // Modal overlay bosilganda yopish
+        document.getElementById('successModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        
+        // ESC tugmasi bosilganda yopish
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('successModal');
+                if (modal.classList.contains('show')) {
+                    closeModal();
+                }
+            }
+        });
+        
+        // Dastlabki captcha yaratish
+        generateCaptcha();
+        
+        // Fokusni inputga qo'yish
+        setTimeout(() => {
+            document.getElementById('captchaInput').focus();
+        }, 300);
+    </script>
+</body>
+</html>
